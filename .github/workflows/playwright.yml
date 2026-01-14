@@ -4,26 +4,66 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - name: Checkout tests repo
+      uses: actions/checkout@v4
+
+    - name: Checkout main app (quality-assurance)
+      uses: actions/checkout@v4
+      with:
+        repository: mevinngugi/quality-assurance
+        path: app
+        # If quality-assurance is private, add a PAT in numida-qa repo secrets
+        # and uncomment the next line:
+        # token: ${{ secrets.PERSONAL_TOKEN }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Install dependencies
+
+    - name: Build & start main app with Docker Compose
+      run: |
+        cd app
+        # Use the same compose file you use locally (compose.yaml)
+        # Build and start in detached mode
+        docker compose -f compose.yaml up --build -d
+        # Optional: show running containers
+        docker ps --filter "name=web" --filter "name=server" || true
+      env:
+        CI: true
+
+    - name: Wait for services to be ready
+      run: |
+        # Wait for both frontend and backend to be responsive
+        npx wait-on http://localhost:5173 http://localhost:5001 --timeout 120000
+
+    - name: Install test dependencies
       run: npm ci
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+
     - name: Run Playwright tests
       env:
         BASE_URL: http://localhost:5173
       run: npx playwright test
-    - uses: actions/upload-artifact@v4
+
+    - name: Upload Playwright report
+      uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+
+    - name: Tear down Docker Compose
+      if: always()
+      run: |
+        cd app
+        docker compose -f compose.yaml down --volumes --remove-orphans
