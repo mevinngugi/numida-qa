@@ -23,7 +23,7 @@ export class HomePage {
     `);
     }
 
-    async clickSendOtp() {
+    async clickStartApplication() {
         await this.startApplicationButton.click();
     }
 }

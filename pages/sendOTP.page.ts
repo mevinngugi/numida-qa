@@ -6,6 +6,7 @@ export class SendOtpPage {
     readonly enterYourPhoneNumberHeading: Locator;
     readonly phoneNumberLabel: Locator;
     readonly phoneNumberInputField: Locator;
+    readonly PhoneNumberErrorMessage: Locator;
     readonly sendOtpButton: Locator;
 
     constructor(page: Page) {
@@ -14,6 +15,7 @@ export class SendOtpPage {
         this.enterYourPhoneNumberHeading = page.getByRole('heading', { name: 'Enter Your Phone Number' });
         this.phoneNumberLabel = page.getByText('Phone Number', { exact: true });
         this.phoneNumberInputField = page.getByRole('textbox', { name: 'Phone Number' });
+        this.PhoneNumberErrorMessage = page.getByText('Invalid phone number format')
         this.sendOtpButton = page.getByRole('button', { name: 'Send OTP' });
     }
 
@@ -27,8 +29,12 @@ export class SendOtpPage {
     `);
     }
 
-    async fillPhoneNumber(phoneNumber: string) {
-        await this.phoneNumberInputField.fill(phoneNumber);
+    async fillValidPhoneNumber(validPhoneNumber = '+256700000000') {
+        await this.phoneNumberInputField.fill(validPhoneNumber);
+    }
+
+    async fillNotValidPhoneNumber(notValidPhoneNumber = '+00') {
+        await this.phoneNumberInputField.fill(notValidPhoneNumber);
     }
     
     async clickSendOtp() {
