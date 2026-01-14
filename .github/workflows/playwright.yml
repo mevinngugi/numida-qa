@@ -57,15 +57,16 @@ jobs:
       run: npx playwright test --project=chromium
 
     - name: Generate Allure report (HTML) from allure-results
+      if: always()
       run: |
         mkdir -p playwright-report/allure-report
         # generate static report at playwright-report/allure-report
         npx allure generate allure-results --clean -o playwright-report/allure-report
-      #
+      continue-on-error: false
 
     - name: Upload Allure HTML report
       uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
+      if: always()
       with:
         name: allure-report
         path: playwright-report/allure-report
