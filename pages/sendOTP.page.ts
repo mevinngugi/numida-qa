@@ -2,6 +2,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 export class SendOtpPage {
     readonly page: Page;
+    readonly pageStructure: Locator;
     readonly enterYourPhoneNumberHeading: Locator;
     readonly phoneNumberLabel: Locator;
     readonly phoneNumberInputField: Locator;
@@ -9,10 +10,21 @@ export class SendOtpPage {
 
     constructor(page: Page) {
         this.page = page;
+        this.pageStructure = page.locator('#root');
         this.enterYourPhoneNumberHeading = page.getByRole('heading', { name: 'Enter Your Phone Number' });
         this.phoneNumberLabel = page.getByText('Phone Number', { exact: true });
         this.phoneNumberInputField = page.getByRole('textbox', { name: 'Phone Number' });
         this.sendOtpButton = page.getByRole('button', { name: 'Send OTP' });
+    }
+
+    async sendOtpPageStructure() {
+        await expect(this.pageStructure).toMatchAriaSnapshot(`
+    - heading "Enter Your Phone Number" [level=2]
+    - text: Phone Number
+    - textbox "Phone Number":
+      - /placeholder: +256 700 000 000
+    - button "Send OTP"
+    `);
     }
 
     async fillPhoneNumber(phoneNumber: string) {
