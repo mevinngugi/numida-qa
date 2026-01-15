@@ -20,6 +20,6 @@ test('UI elements on homepage are visible @UI', async ({ page }) => {
 test('Start Application button navigates to Send OTP page @critical', async ({ page }) => {
   const homePage = new HomePage(page);
   const sendOtpPage = new SendOtpPage(page);
-  await homePage.clickSendOtp();
+  await homePage.clickStartApplication();
   await sendOtpPage.sendOtpPageStructure();
 });
