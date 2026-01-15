@@ -70,16 +70,19 @@ jobs:
         name: allure-report
         path: playwright-report/allure-report
         retention-days: 30
-        
+
     - uses: actions/checkout@v4
     - name: Install Postman CLI
+      if: always()
       run: |
         curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
 
     - name: Login to Postman CLI
+      if: always()
       run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
 
     - name: Run API tests
+      if: always()
       run: |
         postman collection run "${{ secrets.POSTMAN_COLLECTION_ID }}" \
           -e "${{ secrets.POSTMAN_ENV_ID }}"
