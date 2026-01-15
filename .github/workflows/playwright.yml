@@ -71,6 +71,19 @@ jobs:
         path: playwright-report/allure-report
         retention-days: 30
 
+    - name: Install Postman CLI
+      run: |
+        curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+    - name: Login to Postman CLI
+      run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
+    - name: Run API tests
+      run: |
+        postman collection run "${{ secrets.POSTMAN_COLLECTION_ID }}" \
+          -e "${{ secrets.POSTMAN_ENV_ID }}"
+
+
     - name: Tear down Docker Compose
       if: always()
       run: |
